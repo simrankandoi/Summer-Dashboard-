@@ -92,7 +92,7 @@ a{color:inherit;text-decoration:none;}
 .blk-academic{background:#eef5ff;}
 .blk-skill{background:#f0fff4;}
 .blk-journal{background:#fff9e6;}
-.blk-house{background:#fdf6ec;}
+.blk-house{background:#f9f5ff;}
 .blk-gym{background:#fff0ee;}
 .blk-creative{background:#f5f0ff;}
 .blk-evening{background:#f0f8f0;}
@@ -278,6 +278,7 @@ a{color:inherit;text-decoration:none;}
   <button class="tb" onclick="tab('phone',this)">📱 Phone Control</button>
 </div>
 
+<!-- ══════ WEEK VIEW ══════ -->
 <div class="panel on" id="panel-week">
   <div class="week-nav">
     <button class="wn-btn" onclick="shiftWeek(-1)">‹</button>
@@ -287,10 +288,12 @@ a{color:inherit;text-decoration:none;}
   <div class="week-grid" id="week-grid"></div>
 </div>
 
+<!-- ══════ FULL SCHEDULE ══════ -->
 <div class="panel" id="panel-schedule">
   <div class="sch-panel" id="sch-panel"></div>
 </div>
 
+<!-- ══════ CRICKET CONTENT ══════ -->
 <div class="panel" id="panel-cricket">
   <div class="cc-panel">
     <div class="sec-title">Your <em>Content</em> Calendar</div>
@@ -310,7 +313,7 @@ a{color:inherit;text-decoration:none;}
 
     <div class="cc-add-form" style="margin-top:14px;">
       <div style="grid-column:1/-1;font-family:'Playfair Display',serif;font-size:.95rem;font-weight:700;">+ Add a New Video Plan</div>
-      <input type="date" id="cc-date">
+      <input type="date" id="cc-date" placeholder="Date">
       <select id="cc-type">
         <option value="passive">📖 Passive – Storytelling</option>
         <option value="active">🎙️ Active – Opinion/Match</option>
@@ -323,6 +326,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<!-- ══════ FOOD LOG ══════ -->
 <div class="panel" id="panel-food">
   <div class="food-panel">
     <div class="sec-title">The <em>Snack</em> Audit</div>
@@ -355,6 +359,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<!-- ══════ GYM ══════ -->
 <div class="panel" id="panel-gym">
   <div class="gym-panel">
     <div class="sec-title">Your <em>Gym</em> Plan</div>
@@ -378,6 +383,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<!-- ══════ ACHIEVEMENTS ══════ -->
 <div class="panel" id="panel-points">
   <div class="ach-panel">
     <div class="sec-title"><em>Achievements</em> & Streaks</div>
@@ -403,6 +409,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
+<!-- ══════ PHONE ══════ -->
 <div class="panel" id="panel-phone">
   <div style="max-width:660px;margin:0 auto;">
     <div class="sec-title"><em>Phone</em> Control</div>
@@ -416,7 +423,7 @@ a{color:inherit;text-decoration:none;}
       <h3>📲 Best Apps for You</h3>
       <p><b style="color:var(--gold-light);">ActionDash</b> — free, shows weekly usage by app. Very eye-opening.</p>
       <span class="app-pill">ActionDash</span>
-      <p style="margin-top:9px;"><b style="color:var(--gold-light);">Digital Wellbeing</b> — enable Focus Mode 10 AM–1 PM and 4–7 PM. Auto-pauses distracting apps.</p>
+      <p style="margin-top:9px;"><b style="color:var(--gold-light);">Digital Wellbeing (built into Realme GT 6T)</b> — enable Focus Mode 10 AM–1 PM and 4–7 PM. Auto-pauses distracting apps.</p>
       <span class="app-pill">Digital Wellbeing</span><span class="app-pill">Focus Mode</span>
       <p style="margin-top:9px;"><b style="color:var(--gold-light);">Forest App</b> — plant a tree while you study/create. It dies if you leave the app. Visual guilt works.</p>
       <span class="app-pill">Forest App</span>
@@ -428,30 +435,7 @@ a{color:inherit;text-decoration:none;}
   </div>
 </div>
 
-<script type="module">
-// ═══════════════════════════════════════════════════
-// FIREBASE SETUP
-// ═══════════════════════════════════════════════════
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
-import { getStorage, ref as sRef, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-storage.js";
-
-const firebaseConfig = {
-  apiKey: "AIzaSyAyUi34ZCSCWkt82D5Lp3jAJEfwsyOJKg",
-  authDomain: "summer-dashboard-34019.firebaseapp.com",
-  databaseURL: "https://summer-dashboard-34019-default-rtdb.asia-southeast1.firebasedatabase.app",
-  projectId: "summer-dashboard-34019",
-  storageBucket: "summer-dashboard-34019.firebasestorage.app",
-  messagingSenderId: "399848302252",
-  appId: "1:399848302252:web:80d6308494734ccc75e109",
-  measurementId: "G-X1WTDH9Z27"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
-const storage = getStorage(app);
-const dbPath = 'users/dashboard/state';
-
+<script>
 // ═══════════════════════════════════════════════════
 // CONSTANTS & DATA
 // ═══════════════════════════════════════════════════
@@ -471,176 +455,774 @@ function fmt(d){ return `${DOW[d.getDay()]} ${d.getDate()} ${MONTH[d.getMonth()]
 function isSolo(d){ return d >= SOLO_S && d < SOLO_E; }
 function isWknd(d){ return d.getDay()===0||d.getDay()===6; }
 
+// ─── DAILY SCHEDULES ─── 
+// Each day: array of blocks { time, label, sub, cat, pts, note }
+// cat: morning|academic|skill|journal|house|gym|creative|evening|night|solo
 function buildSchedule(date){
-  const d = date.getDay(); 
+  const d = date.getDay(); // 0=Sun
   const solo = isSolo(date);
   const wknd = isWknd(date);
+
+  // Which creative focus?
   const focusMap = {1:'art',2:'learn',3:'content',4:'read',5:'skill',6:'flex',0:'rest'};
   let focus = focusMap[d];
+
+  // Which gym session?
   const gymMap = {1:'lower',3:'upper',4:'core',6:'fullbody'};
   const gym = gymMap[d];
 
   const blocks = [];
+
+  // ── MORNING ──
   blocks.push({id:'wake', time: wknd?'9:30–10:00':'8:30–9:00', label: wknd?'Wake up & freshen up':'Wake up by 9:00 AM', sub:'Start your day with intention, not your phone.', cat:'morning', pts:10, note:'Waking late makes everything else shrink. This one matters most.'});
   blocks.push({id:'chai', time: wknd?'10:00–10:15':'9:00–9:15', label:'Make mum\'s chai ☕', sub:'Every single day — before your own breakfast.', cat:'morning', pts:5, note:'5 minutes. Non-negotiable.'});
+
   if(solo){
     blocks.push({id:'solo-lunch-plan', time:'9:15–9:30', label:'Plan today\'s lunch 🍳', sub:'Mum is away — you\'re the adult in this kitchen.', cat:'solo', pts:5, note:'Quick options: rice+dal, chapati, eggs. Plan it before 9:30 so you\'re not scrambling at 1 PM.'});
   }
-  blocks.push({id:'bath', time: wknd?'10:15–10:30':'9:15–9:30', label:'Bath 🛁', sub:'Every day. Without exception.', cat:'morning', pts:10, note:'Bath = the signal to your brain that the day has started.'});
-  blocks.push({id:'skin-am', time: wknd?'10:30–10:40':'9:30–9:40', label:'Skincare — AM routine 🧴', sub:'Cleanser → moisturiser → SPF. 5 minutes.', cat:'morning', pts:5, note:'SPF every morning. No negotiation.'});
+
+  blocks.push({id:'bath', time: wknd?'10:15–10:30':'9:15–9:30', label:'Bath 🛁', sub:'Every day. Without exception.', cat:'morning', pts:10, note:'Bath = the signal to your brain that the day has started. Skip it and you stay in slow mode.'});
+  blocks.push({id:'skin-am', time: wknd?'10:30–10:40':'9:30–9:40', label:'Skincare — AM routine 🧴', sub:'Cleanser → moisturiser → SPF. 5 minutes.', cat:'morning', pts:5, note:'SPF every morning. No negotiation. Your skin in 10 years will thank you.'});
   blocks.push({id:'bfast', time: wknd?'10:40–11:00':'9:40–10:00', label:'Breakfast 🍳', sub:'Eat before the academic block. Brain needs fuel.', cat:'morning', pts:0});
-  blocks.push({id:'dm-course', time: wknd?'11:00–11:45':'10:00–10:45', label:'Google Digital Marketing Course 📊', sub:'One module per day. Notes in notebook or phone.', cat:'academic', pts:15, note:'This is a free Google-certified course.'});
+
+  // ── ACADEMIC BLOCK (this is what you tell your mum) ──
+  blocks.push({id:'dm-course', time: wknd?'11:00–11:45':'10:00–10:45', label:'Google Digital Marketing Course 📊', sub:'One module per day. Notes in notebook or phone.', cat:'academic', pts:15, note:'This is a free Google-certified course. Having this certificate as a Mass Comm student is genuinely impressive to employers and internship panels.'});
+
+  // Match report (daily during IPL season)
   if(date <= FINAL){
-    blocks.push({id:'match-report', time: wknd?'11:45–12:30':'10:45–11:30', label:'Write yesterday\'s match report 📝', sub:'200–300 words. Key moments, player performances, your take.', cat:'academic', pts:20, note:'This is journalism practice.'});
+    blocks.push({id:'match-report', time: wknd?'11:45–12:30':'10:45–11:30', label:'Write yesterday\'s match report 📝', sub:'200–300 words. Key moments, player performances, your take.', cat:'academic', pts:20, note:'This is journalism practice. You\'re building a writing portfolio. Save every report. This is what "studying" looks like for BA Mass Comm.'});
   }
-  blocks.push({id:'script', time: wknd?'12:30–13:00':'11:30–12:00', label:'Cricket content: script/research 🏏', sub:'Write out your next video\'s talking points.', cat:'academic', pts:10, note:'Pre-scripted videos are 10× more confident.'});
+
+  // Content scripting
+  blocks.push({id:'script', time: wknd?'12:30–13:00':'11:30–12:00', label:'Cricket content: script/research 🏏', sub:'Write out your next video\'s talking points. 3–5 bullet facts.', cat:'academic', pts:10, note:'Pre-scripted videos are 10× more confident than improvised ones. This counts as media production work.'});
+
+  // ── LUNCH ──
   if(solo){
-    blocks.push({id:'cook', time:'12:00–12:45', label:'Cook & serve lunch 🍽️', sub:'You\'re handling this.', cat:'solo', pts:10, note:'Making lunch alone while managing your day is genuine life skill.'});
+    blocks.push({id:'cook', time:'12:00–12:45', label:'Cook & serve lunch 🍽️', sub:'You\'re handling this. Keep it simple but real.', cat:'solo', pts:10, note:'Making lunch alone while managing your day is genuine life skill. Include this when people ask what you did.'});
   } else {
-    blocks.push({id:'lunch', time: wknd?'13:00–13:30':'12:00–12:30', label:'Lunch 🍽️', sub:'Eat properly.', cat:'morning', pts:0});
+    blocks.push({id:'lunch', time: wknd?'13:00–13:30':'12:00–12:30', label:'Lunch 🍽️', sub:'Eat properly. Sit down. Don\'t scroll.', cat:'morning', pts:0});
   }
+
+  // ── SKILL / CREATIVE BLOCK ──
   const creativeSlot = wknd ? '14:00–15:30' : '12:30–14:00';
   if(focus==='art'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Artwork practice 🎨', sub:'Sketch, colour, any medium.', cat:'creative', pts:15, note:'Visual storytelling is part of your Media degree.'});
+    blocks.push({id:'creative', time:creativeSlot, label:'Artwork practice 🎨', sub:'Sketch, colour, any medium. Then photograph it.', cat:'creative', pts:15, note:'Visual storytelling is part of your Media degree. This is portfolio-building.'});
   } else if(focus==='learn'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Skill deep dive: video editing 🎬', sub:'Edit one short clip or practice transitions.', cat:'skill', pts:15, note:'Video production is core to Mass Comm.'});
+    blocks.push({id:'creative', time:creativeSlot, label:'Skill deep dive: video editing / CapCut 🎬', sub:'Edit one short clip or practice transitions.', cat:'skill', pts:15, note:'Video production is core to Mass Comm. You\'re building a hands-on skill most classmates won\'t have.'});
   } else if(focus==='content'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Film your cricket reel 🎬', sub:'3 takes max. Use the best one.', cat:'skill', pts:20, note:'Real content for a real audience.'});
+    blocks.push({id:'creative', time:creativeSlot, label:'Film your cricket reel 🎬', sub:'Rear camera, window light, 3 takes max. Use the best one.', cat:'skill', pts:20, note:'Each video you film is media production practice. Real content for a real audience.'});
   } else if(focus==='read'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Reading — book from your PDF list 📚', sub:'45 min minimum. Tablet/laptop.', cat:'skill', pts:15, note:'Literature students who read widely write better.'});
-    blocks.push({id:'film', time: wknd?'15:30–16:30':'13:30–14:30', label:'Watch a film from your curated list 🎬', sub:'Intentional viewing.', cat:'creative', pts:10});
+    blocks.push({id:'creative', time:creativeSlot, label:'Reading — book from your PDF list 📚', sub:'45 min minimum. Tablet/laptop.', cat:'skill', pts:15, note:'Literature and Journalism students who read widely write better. This matters for your degree.'});
+    blocks.push({id:'film', time: wknd?'15:30–16:30':'13:30–14:30', label:'Watch a film from your curated list 🎬', sub:'Intentional viewing — note direction, storytelling, cinematography.', cat:'creative', pts:10, note:'Media students who analyse films think differently about content. Count it as study.'});
   } else if(focus==='skill'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Internship research + applications 💼', sub:'LinkedIn, Unstop. Apply to 1 today.', cat:'academic', pts:15});
+    blocks.push({id:'creative', time:creativeSlot, label:'Internship research + applications 💼', sub:'Internshala, LinkedIn, Unstop. Apply to 1 today.', cat:'academic', pts:15, note:'One application per week minimum. Rejections build your profile. Start early.'});
   } else if(focus==='flex'){
-    blocks.push({id:'creative', time:creativeSlot, label:'Flex — outing, artwork, or extra reading', sub:'Family outing? Go. Home? Pick one task.', cat:'creative', pts:10});
+    blocks.push({id:'creative', time:creativeSlot, label:'Flex — outing, artwork, or extra reading', sub:'Family outing? Go. Home? Pick one creative task.', cat:'creative', pts:10});
   } else {
-    blocks.push({id:'creative', time:creativeSlot, label:'Long reading session 📚', sub:'Sunday: 1 hour. Tablet + PDF.', cat:'skill', pts:15});
+    blocks.push({id:'creative', time:creativeSlot, label:'Long reading session 📚', sub:'Sunday: 1 hour. Tablet + PDF. This is intentional rest.', cat:'skill', pts:15});
   }
-  blocks.push({id:'chores', time: wknd?'15:30–16:00':'14:00–14:30', label:'Household tasks 🧹', sub:'Laundry, dosa help — whatever comes up.', cat:'house', pts:5, note:'These aren\'t interruptions. Build them in.'});
+
+  // Household tasks slot
+  blocks.push({id:'chores', time: wknd?'15:30–16:00':'14:00–14:30', label:'Household tasks 🧹', sub:'Laundry, folding, drying, dosa help — whatever comes up.', cat:'house', pts:5, note:'These aren\'t interruptions. Build them in and they stop feeling like friction.'});
+
+  // Two-wheeler practice — Mon, Wed
   if(d===1||d===3){
-    blocks.push({id:'scooty', time:'14:30–15:00', label:'Two-wheeler practice 🛵', sub:'Open space, 30 min.', cat:'skill', pts:15, note:'Hot outside? Go between 4:30–5:30 PM.'});
+    blocks.push({id:'scooty', time:'14:30–15:00', label:'Two-wheeler practice 🛵', sub:'Open space, someone present. 30 min. Safety first.', cat:'skill', pts:15, note:'Hot outside? Go between 4:30–5:30 PM when it cools. Early evening works fine.'});
   }
+
+  // ── GYM ──
   const gymSlot = wknd?'16:30–17:30':'15:00–16:00';
   const gymLabels = {lower:'Lower Body',upper:'Upper Body',core:'Core + Cardio',fullbody:'Full Body Light'};
   if(gym){
-    blocks.push({id:'gym', time:gymSlot, label:`Gym — ${gymLabels[gym]} 💪`, sub:'See Gym Guide tab. 45 min.', cat:'gym', pts:20, note:'Hot outside? The gym is AC. No excuse.'});
+    blocks.push({id:'gym', time:gymSlot, label:`Gym — ${gymLabels[gym]} 💪`, sub:'See Gym Guide tab. 45 min. Go at 3:30–6:30 PM.', cat:'gym', pts:20, note:'Hot outside? The gym is air-conditioned. No excuse.'});
   } else {
-    blocks.push({id:'gym', time:gymSlot, label:'Rest day — light walk or stretching 🧘', sub:'Muscles repair on rest days.', cat:'gym', pts:5});
+    blocks.push({id:'gym', time:gymSlot, label:'Rest day — light walk or stretching 🧘', sub:'Muscles repair on rest days. This is part of the plan.', cat:'gym', pts:5});
   }
-  blocks.push({id:'prep-eve', time:'17:30–18:30', label:'Personal time + freshen up 🌇', cat:'evening', pts:0});
+
+  // ── EVENING ──
+  blocks.push({id:'prep-eve', time:'17:30–18:30', label:'Personal time + freshen up 🌇', sub:'Read, browse, journal, relax intentionally.', cat:'evening', pts:0});
+
   if(solo){
-    blocks.push({id:'solo-dinner-prep', time:'18:30–19:15', label:'Prepare dinner 🍛', cat:'solo', pts:10});
+    blocks.push({id:'solo-dinner-prep', time:'18:30–19:15', label:'Prepare dinner 🍛', sub:'Running the house this week — dinner is on you.', cat:'solo', pts:10, note:'Add this to your "what did you do today" list. It\'s real responsibility.'});
   }
-  blocks.push({id:'dinner', time:'19:30–20:00', label:'Dinner with family 🍛', sub:'No phone at the table.', cat:'evening', pts:0});
-  blocks.push({id:'ipl', time:'19:30–22:30', label:'Watch IPL 🏏', sub:'Dad home by 7. Family time.', cat:'evening', pts:0});
-  blocks.push({id:'skin-pm', time:'20:30–20:40', label:'Skincare — PM routine 🧴', cat:'evening', pts:5});
+
+  blocks.push({id:'dinner', time:'19:30–20:00', label:'Dinner with family 🍛', sub:'Sit together. No phone at the table.', cat:'evening', pts:0});
+  blocks.push({id:'ipl', time:'19:30–22:30', label:'Watch IPL 🏏', sub:'Dad usually home by 7. Family time.', cat:'evening', pts:0, note:'This is also research for your content.'});
+  blocks.push({id:'skin-pm', time:'20:30–20:40', label:'Skincare — PM routine 🧴', sub:'Cleanser → toner → moisturiser.', cat:'evening', pts:5});
+
+  // Post-match content
   if(date <= FINAL){
-    blocks.push({id:'react', time:'22:30–23:00', label:'Film 30-sec IPL reaction 📱', sub:'Post as a story or reel.', cat:'skill', pts:10});
+    blocks.push({id:'react', time:'22:30–23:00', label:'Film 30-sec IPL reaction 📱', sub:'Post as a story or reel. Raw reaction is fine.', cat:'skill', pts:10, note:'Post-match reactions are your most timely content. Don\'t overthink. Just record and post.'});
   }
-  blocks.push({id:'sugar-check', time:'23:00', label:'Check: no extra snacks today? 🍫', cat:'night', pts:10});
-  blocks.push({id:'phone-away', time:'00:30', label:'Phone across the room 📵', sub:'12:30 AM maximum.', cat:'night', pts:5});
+
+  // ── NIGHT ──
+  blocks.push({id:'sugar-check', time:'23:00', label:'Check: no extra snacks today? 🍫', sub:'If nothing in Food Log → +10 bonus points.', cat:'night', pts:10});
+
+  if(isWknd(date)){
+    blocks.push({id:'weekly-ref', time:'23:00–23:15', label:'Weekly reflection — 3 wins + 1 to improve 📓', sub:'Just your notes app. 5 minutes.', cat:'night', pts:10});
+  }
+  if(d===0){ // Sunday
+    blocks.push({id:'week-plan', time:'22:00–22:15', label:'Plan next week — check this dashboard 📅', sub:'Content topic, gym days, any errands.', cat:'night', pts:10});
+  }
+
+  blocks.push({id:'phone-away', time:'00:30', label:'Phone across the room 📵', sub:'12:30 AM maximum. IPL edits can wait till morning.', cat:'night', pts:5, note:'Sleep is when your brain consolidates what you learned. Protect it.'});
+
   return blocks;
 }
 
+// ─── DAY METADATA ───
 function getDayMeta(date){
   const d = date.getDay();
   const solo = isSolo(date);
   const wknd = isWknd(date);
   const after = date > IPL_END;
+
   const themes = {
     1:{label:'📊 Academic + Art',pill:'tp-academic',accent:'#2a6ab0',accentEnd:'#c9a84c'},
     2:{label:'📚 Academic + Editing',pill:'tp-academic',accent:'#3d8b5e',accentEnd:'#6db86e'},
     3:{label:'🎬 Academic + Film Day',pill:'tp-content',accent:'#c96a3a',accentEnd:'#e8a060'},
     4:{label:'📖 Academic + Reading',pill:'tp-academic',accent:'#7c5cbf',accentEnd:'#a98de0'},
     5:{label:'💼 Academic + Internships',pill:'tp-academic',accent:'#c9a84c',accentEnd:'#e8cc80'},
-    6:{label:solo?'🏠 Solo Responsibility':'🌿 Family + Flex',pill:solo?'tp-solo':'tp-free',accent:'#7c5cbf',accentEnd:'#a98de0'},
+    6:{label:solo?'🏠 Solo + Family Flex':'🌿 Family + Flex',pill:solo?'tp-solo':'tp-free',accent:solo?'#7c5cbf':'#2a6a9a',accentEnd:solo?'#a98de0':'#5a9ec9'},
     0:{label:'☀️ Rest + Reading',pill:'tp-rest',accent:'#d4857a',accentEnd:'#c9a84c'},
   };
   const m = themes[d];
-  return { theme: solo ? '🏠 Solo Responsibility' : m.label, pill: solo ? 'tp-solo' : m.pill, accent: m.accent, accentEnd: m.accentEnd, phase: solo ? 'solo' : after ? 'ipl' : 'normal' };
+  return {
+    theme: solo ? '🏠 Solo Responsibility' : m.label,
+    pill: solo ? 'tp-solo' : m.pill,
+    accent: m.accent,
+    accentEnd: m.accentEnd,
+    phase: solo ? 'solo' : after ? 'ipl' : 'normal'
+  };
 }
 
-const PHASE_LABELS = { solo:'🟣 Solo Week — Mum on vacation. You\'re running the house.', ipl:'🟢 IPL Playoffs — Post reactions same night. Peak audience.', normal:'✦ Summer break in session.' };
+const PHASE_LABELS = {
+  solo:'🟣 Solo Week — Mum on vacation. You\'re running the house.',
+  ipl:'🟢 IPL Playoffs — Post reactions same night. Peak audience.',
+  normal:'✦ Summer break in session.',
+};
+
+// ─── CAT COLOURS ───
+const catBg = {morning:'#fff8f0',academic:'#eef5ff',skill:'#f0fff4',journal:'#fff9e6',house:'#fdf6ec',gym:'#fff0ee',creative:'#f5f0ff',evening:'#f0f8f0',night:'#f5f5f5',solo:'#ede8f8'};
 
 // ═══════════════════════════════════════════════════
-// STATE & SYNC
+// STATE
 // ═══════════════════════════════════════════════════
-let S = { tasks:{}, refs:{}, photos:{}, tmr:{}, tmrAdj:{}, carbs:{}, pts:0, streak:0, streakDays:{}, ach:{}, content:defaultContent() };
+let S = {};
+try{ S = JSON.parse(localStorage.getItem('sumDash3')||'{}'); }catch(e){}
+if(!S.tasks)   S.tasks={};
+if(!S.refs)    S.refs={};
+if(!S.photos)  S.photos={};
+if(!S.tmr)     S.tmr={};
+if(!S.tmrAdj)  S.tmrAdj={};
+if(!S.carbs)   S.carbs={};
+if(!S.pts)     S.pts=0;
+if(!S.streak)  S.streak=0;
+if(!S.streakDays) S.streakDays={};
+if(!S.ach)     S.ach={};
+if(!S.content) S.content=defaultContent();
+function save(){ try{localStorage.setItem('sumDash3',JSON.stringify(S));}catch(e){} }
 
-function save(){ set(ref(db, dbPath), S); }
-
-onValue(ref(db, dbPath), (snapshot) => {
-    const data = snapshot.val();
-    if (data) { S = data; renderWeek(); updateStats(); buildAch(); updateCarbLog(); buildCC(); }
-});
-
-let weekStart = new Date(START);
+// ─── WEEK STATE ───
+let weekStart = new Date(START); // Apr 29
 
 function shiftWeek(n){
-  const d = new Date(weekStart); d.setDate(d.getDate()+n*7);
+  const d = new Date(weekStart);
+  d.setDate(d.getDate()+n*7);
   if(d < START || d > END) return;
-  weekStart = d; renderWeek();
+  weekStart = d;
+  renderWeek();
 }
 
+// ═══════════════════════════════════════════════════
+// RENDER WEEK
+// ═══════════════════════════════════════════════════
 function renderWeek(){
   const grid = document.getElementById('week-grid');
   const label = document.getElementById('wn-label');
   const sub   = document.getElementById('wn-sub');
 
+  // Build 7-day window from weekStart
   const days = [];
   for(let i=0;i<7;i++){
-    const d = new Date(weekStart); d.setDate(d.getDate()+i);
+    const d = new Date(weekStart);
+    d.setDate(d.getDate()+i);
     if(d>=START && d<=END) days.push(d);
   }
 
-  label.textContent = `${fmt(days[0])} – ${fmt(days[days.length-1])}`;
-  sub.textContent = days.some(d=>isSolo(d)) ? '🟣 Solo Week (May 2–9) included' : '';
+  const wEnd = new Date(days[days.length-1]);
+  label.textContent = `${fmt(days[0])} – ${fmt(wEnd)}`;
+
+  // Phase check
+  const hasSolo = days.some(d=>isSolo(d));
+  sub.textContent = hasSolo ? '🟣 Solo Week (May 2–9) included' : '';
 
   grid.innerHTML = '';
   days.forEach(date => {
-    const dkey = dk(date); const blocks = buildSchedule(date); const meta = getDayMeta(date); const today = dkey === dk(new Date());
+    const dkey = dk(date);
+    const blocks = buildSchedule(date);
+    const meta = getDayMeta(date);
+    const solo = isSolo(date);
+    const today = dkey === dk(new Date());
 
     if(!S.tasks[dkey]) S.tasks[dkey]={};
     const done = blocks.filter(b=>S.tasks[dkey][b.id]).length;
     const pct  = blocks.length ? Math.round(done/blocks.length*100) : 0;
     const dayPts = blocks.filter(b=>S.tasks[dkey][b.id]).reduce((a,b)=>a+(b.pts||0),0);
+
     const ref = S.refs[dkey]||{missed:'',extra:''};
     const photos = S.photos[dkey]||[];
-    const tmrKey = dk(new Date(date.getTime() + 86400000));
 
-    let card = `<div class="dc ${meta.phase==='solo'?'solo-tint':''}">`;
-    card += `<div class="dc-head"><div class="dc-top"><div><div class="dc-date">${fmt(date)}${today?' · Today':''}</div><div class="dc-name">${FULL_DOW[date.getDay()]}</div></div><span class="dc-theme-pill ${meta.pill}">${meta.theme}</span></div><div class="dc-accent" style="background:linear-gradient(90deg,${meta.accent},${meta.accentEnd});"></div></div>`;
-    card += `<div class="dc-body"><span class="phase-tag ${meta.phase==='solo'?'ph-solo':meta.phase==='ipl'?'ph-ipl':'ph-normal'}">${PHASE_LABELS[meta.phase]}</span>`;
-    if(blocks.filter(b=>b.cat==='academic').length) card += `<div style="background:#eef5ff;border-radius:9px;padding:9px 11px;margin-bottom:10px;font-size:.73rem;color:#1a4a8a;line-height:1.5;"><b>📢 Tell mum:</b> "I wrote a match report and finished a digital marketing module."</div>`;
+    // Tomorrow key
+    const tmrDate = new Date(date); tmrDate.setDate(tmrDate.getDate()+1);
+    const tmrKey = dk(tmrDate);
 
+    let card = `<div class="dc ${solo?'solo-tint':''}" id="card-${dkey}">`;
+    card += `<div class="dc-head">
+      <div class="dc-top">
+        <div>
+          <div class="dc-date">${fmt(date)}${today?' · Today':''}</div>
+          <div class="dc-name">${FULL_DOW[date.getDay()]}</div>
+        </div>
+        <span class="dc-theme-pill ${meta.pill}">${meta.theme}</span>
+      </div>
+      <div class="dc-accent" style="background:linear-gradient(90deg,${meta.accent},${meta.accentEnd});"></div>
+    </div>`;
+
+    card += `<div class="dc-body">`;
+
+    // Phase tag
+    card += `<span class="phase-tag ${meta.phase==='solo'?'ph-solo':meta.phase==='ipl'?'ph-ipl':'ph-normal'}">${PHASE_LABELS[meta.phase]}</span>`;
+
+    // "What you can tell mum" banner
+    const academic = blocks.filter(b=>b.cat==='academic');
+    if(academic.length){
+      card += `<div style="background:#eef5ff;border-radius:9px;padding:9px 11px;margin-bottom:10px;font-size:.73rem;color:#1a4a8a;line-height:1.5;"><b>📢 Tell mum:</b> "I wrote a match report, finished a digital marketing module, and scripted a video." — that's journalism + media production + marketing. All before lunch.</div>`;
+    }
+
+    // TIMETABLE
+    let lastSec = '';
     blocks.forEach(b => {
       const bdone = S.tasks[dkey][b.id];
-      card += `<div class="tt-row"><div class="tt-time">${b.time}</div><div class="tt-block ${bdone?'done-blk':''}" style="background:${catBg[b.cat]}" onclick="toggleTask('${dkey}','${b.id}',${b.pts})"><div class="tt-label">${b.label}${b.sub?`<span class="sub">${b.sub}</span>`:''}</div><div class="tt-check ${bdone?'chk':''}"></div></div></div>`;
+      const bg = catBg[b.cat]||'#fff';
+      card += `<div class="tt-row">
+        <div class="tt-time">${b.time}</div>
+        <div class="tt-block ${bdone?'done-blk':''}" style="background:${bg}" onclick="toggleTask('${dkey}','${b.id}',${b.pts||0})">
+          <div class="tt-label">${b.label}${b.sub?`<span class="sub">${b.sub}</span>`:''}
+          ${b.note&&!bdone?`<span class="sub" style="color:var(--rust);font-style:normal;">↳ ${b.note}</span>`:''}
+          </div>
+          <div style="display:flex;align-items:center;gap:6px;">
+            ${b.pts?`<span class="tt-pts">+${b.pts}</span>`:''}
+            <div class="tt-check ${bdone?'chk':''}"></div>
+          </div>
+        </div>
+      </div>`;
     });
 
-    card += `<div class="dc-prog"><div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div><div class="prog-lbl"><span>${done}/${blocks.length} done · ${dayPts} pts</span><span>${pct}%</span></div></div>`;
-    card += `<div class="photo-grid" id="pg-${dkey}">${photos.map(p=>`<img src="${p.src}">`).join('')}</div></div></div>`;
+    // Progress
+    card += `<div class="dc-prog">
+      <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+      <div class="prog-lbl"><span>${done}/${blocks.length} blocks done · ${dayPts} pts</span><span>${pct}%</span></div>
+    </div>`;
+
+    // Photo journal
+    card += `<div class="photo-sec">
+      <div class="sec-div">📷 Photo Journal</div>
+      <div class="photo-zone" onclick="document.getElementById('pi-${dkey}').click()">
+        <input type="file" id="pi-${dkey}" accept="image/*" multiple onchange="addPhotos(event,'${dkey}')">
+        <span>📸 Add gym selfie, artwork, food, any moment from today</span>
+      </div>
+      <div class="photo-grid" id="pg-${dkey}">
+        ${photos.map(p=>`<img src="${p.src}" title="${p.cap||''}">`).join('')}
+      </div>
+    </div>`;
+
+    // Reflection
+    card += `<div class="reflect-box">
+      <div class="sec-div">📓 End-of-Day Reflection</div>
+      <span class="ref-label">What I didn't do — and the real reason:</span>
+      <textarea class="ref-ta" id="rm-${dkey}" placeholder="e.g. Skipped gym because we had guests. Didn't write the match report — was too tired after IPL. That's on me.">${ref.missed}</textarea>
+      <span class="ref-label" style="margin-top:8px;">What I did instead / extras / swaps:</span>
+      <textarea class="ref-ta" id="re-${dkey}" placeholder="e.g. Did artwork instead of reading — felt more creative. Helped sister with cooking (solo week). Read 2 chapters instead of 1.">${ref.extra}</textarea>
+      <button class="ref-save" onclick="saveRef('${dkey}')">Save Reflection</button>
+      <div class="ref-ok" id="ro-${dkey}">✓ Saved</div>
+    </div>`;
+
+    // Tomorrow planner
+    if(tmrDate<=END){
+      const tmrNote = S.tmr[tmrKey]||'';
+      const tmrAdj  = S.tmrAdj[tmrKey]||'';
+      card += `<div class="tmr-box">
+        <div class="tmr-title">📅 Plan for tomorrow — ${fmt(tmrDate)}</div>
+        <div style="font-size:.71rem;color:#2a4a6a;margin-bottom:7px;opacity:.8;">Tell me anything special and I'll suggest how to adjust your schedule.</div>
+        <textarea class="tmr-ta" id="ti-${tmrKey}" placeholder="e.g. Going to mall around 2 PM, back by 6. Or: staying home, no plans.">${tmrNote}</textarea>
+        <button class="tmr-btn" onclick="analyzeTmr('${tmrKey}','${fmt(tmrDate)}','${date.getDay()}')">Adjust Tomorrow →</button>
+        <div class="tmr-result" id="tr-${tmrKey}" ${tmrAdj?'style="display:block"':''}>${tmrAdj}</div>
+      </div>`;
+    }
+
+    card += `</div></div>`;
     grid.innerHTML += card;
   });
+
   updateStats();
 }
 
-function toggleTask(dkey, bId, pts){ if(!S.tasks[dkey]) S.tasks[dkey]={}; const prev = S.tasks[dkey][bId]; S.tasks[dkey][bId] = !prev; S.pts += !prev ? pts : -pts; save(); }
-function updateStats(){ document.getElementById('s-pts').textContent = S.pts; document.getElementById('s-streak').textContent = S.streak; document.getElementById('s-today').textContent = fmt(new Date()); }
+// ═══════════════════════════════════════════════════
+// FULL SCHEDULE VIEW
+// ═══════════════════════════════════════════════════
+function renderSchedule(){
+  const panel = document.getElementById('sch-panel');
+  let html = `<div class="sec-title">Full <em>Hour-by-Hour</em> Schedule</div>
+    <div class="sec-sub">All 11 days · Apr 28 – May 9. Colour = block type.</div>
+    <div class="divider">✦ ✦ ✦</div>`;
+
+  for(let i=0;i<11;i++){
+    const date = new Date(START);
+    date.setDate(date.getDate()+i);
+    if(date>END) break;
+    const blocks = buildSchedule(date);
+    const meta = getDayMeta(date);
+    const solo = isSolo(date);
+
+    html += `<div class="sch-day-head">
+      <span class="dc-theme-pill ${meta.pill}" style="font-size:.7rem;">${isSolo(date)?'🟣 SOLO':isWknd(date)?'🌿 WEEKEND':'📅'}</span>
+      <h2>${FULL_DOW[date.getDay()]}, ${fmt(date)}</h2>
+    </div>`;
+
+    html += `<table class="sch-table">`;
+    blocks.forEach(b=>{
+      const rowCls = `sch-row-${b.cat==='solo'?'solo':b.cat==='academic'?'academic':b.cat==='skill'?'skill':b.cat==='house'?'house':b.cat==='gym'?'gym':b.cat==='creative'?'creative':''}`;
+      html += `<tr class="${rowCls}">
+        <td class="sch-time">${b.time}</td>
+        <td class="sch-act">${b.label}</td>
+        <td class="sch-why">${b.sub||''}</td>
+      </tr>`;
+    });
+    html += `</table>`;
+  }
+
+  // Legend
+  html += `<div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;font-size:.72rem;">
+    <span style="background:#eef5ff;padding:3px 10px;border-radius:100px;">🔵 Academic (journalism + marketing)</span>
+    <span style="background:#f0fff4;padding:3px 10px;border-radius:100px;">🟢 Skill building</span>
+    <span style="background:#fff0ee;padding:3px 10px;border-radius:100px;">🔴 Gym</span>
+    <span style="background:#f5f0ff;padding:3px 10px;border-radius:100px;">🟣 Creative</span>
+    <span style="background:var(--purple-light);padding:3px 10px;border-radius:100px;color:var(--purple);">🪻 Solo week</span>
+    <span style="background:#fdf6ec;padding:3px 10px;border-radius:100px;">🟤 Household</span>
+  </div>`;
+
+  panel.innerHTML = html;
+}
 
 // ═══════════════════════════════════════════════════
-// ASSET MANAGEMENT & HELPERS (GYM/CC/ACH)
+// TASK TOGGLE
 // ═══════════════════════════════════════════════════
-function buildGym(){ /* Full Gym Logic Here */ }
-function defaultContent(){ return [ {id:'c1',date:'2026-04-28',type:'passive',topic:'Research rise to stardom',status:'planned',notes:''}, {id:'c4',date:'2026-05-01',type:'passive',topic:'Film Unknown IPL story',status:'planned',notes:''} ]; }
-function buildCC(){ /* Full CC Logic Here */ }
-function buildAch(){ /* Full Achievement Logic Here */ }
-function updateCarbLog(){ /* Full Carb Logic Here */ }
+function toggleTask(dkey, blockId, pts){
+  if(!S.tasks[dkey]) S.tasks[dkey]={};
+  const prev = S.tasks[dkey][blockId];
+  S.tasks[dkey][blockId] = !prev;
+  S.pts = Math.max(0, S.pts + (!prev ? pts : -pts));
+  save(); updateStats(); checkAch();
+  renderWeek();
+}
 
-window.tab = (name, btn) => { document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on')); document.getElementById('panel-'+name).classList.add('on'); document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); };
-window.toggleTask = toggleTask; window.shiftWeek = shiftWeek; window.addPhotos = (e, dkey) => { /* Photo logic */ };
+// ═══════════════════════════════════════════════════
+// PHOTOS
+// ═══════════════════════════════════════════════════
+function addPhotos(e, dkey){
+  const files = Array.from(e.target.files);
+  if(!S.photos[dkey]) S.photos[dkey]=[];
+  files.forEach(f=>{
+    const r = new FileReader();
+    r.onload = ev => {
+      // compress
+      const img = new Image();
+      img.onload = () => {
+        const c = document.createElement('canvas');
+        const MAX = 400;
+        const ratio = Math.min(MAX/img.width, MAX/img.height, 1);
+        c.width = img.width*ratio; c.height = img.height*ratio;
+        c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+        const src = c.toDataURL('image/jpeg',0.6);
+        const cap = prompt(`Caption for this photo? (optional)`,'')||'';
+        S.photos[dkey].push({src,cap});
+        save();
+        const pg = document.getElementById('pg-'+dkey);
+        if(pg){
+          const el = document.createElement('img');
+          el.src=src; el.title=cap;
+          el.style='width:100%;height:68px;object-fit:cover;border-radius:7px;border:1.5px solid var(--warm);';
+          pg.appendChild(el);
+        }
+      };
+      img.src = ev.target.result;
+    };
+    r.readAsDataURL(f);
+  });
+}
 
-renderWeek(); buildGym(); buildCC(); buildAch(); updateCarbLog();
+// ═══════════════════════════════════════════════════
+// REFLECTION
+// ═══════════════════════════════════════════════════
+function saveRef(dkey){
+  const m = document.getElementById('rm-'+dkey)?.value||'';
+  const e2 = document.getElementById('re-'+dkey)?.value||'';
+  S.refs[dkey]={missed:m,extra:e2};
+  save();
+  const ok = document.getElementById('ro-'+dkey);
+  if(ok){ok.style.display='block';setTimeout(()=>ok.style.display='none',2000);}
+}
+
+// ═══════════════════════════════════════════════════
+// TOMORROW PLANNER
+// ═══════════════════════════════════════════════════
+async function analyzeTmr(tmrKey, label, todayDow){
+  const inp = document.getElementById('ti-'+tmrKey);
+  const res = document.getElementById('tr-'+tmrKey);
+  if(!inp?.value.trim()) return;
+  S.tmr[tmrKey]=inp.value; save();
+
+  const btn = inp.parentElement.querySelector('.tmr-btn');
+  if(btn){btn.disabled=true;btn.innerHTML='<span class="loading-spinner"></span>Thinking...';}
+  res.style.display='none';
+
+  const tmrDate = new Date(tmrKey);
+  const soloDay = isSolo(tmrDate);
+  const wkndDay = isWknd(tmrDate);
+  const dowName = FULL_DOW[tmrDate.getDay()];
+
+  try{
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',max_tokens:500,
+        messages:[{role:'user',content:`You are a practical schedule assistant for an 18-year-old girl in Hyderabad on summer break. She studies BA Mass Communication, Literature, Journalism, Political Science.
+
+Tomorrow: ${label} (${dowName})
+${soloDay?'SOLO WEEK — her mum is on vacation. She is responsible for cooking lunch and dinner and running the house.':''}
+${wkndDay?'Weekend — parents home, possible family outings.':''}
+
+Her usual daily schedule includes: waking by 9 AM, chai for mum, bath, skincare, Google Digital Marketing module (45 min), writing a match report (30 min), scripting a cricket video (20 min), a creative/skill block, household chores, gym 45 min (3:30–6:30 PM), IPL at 7:30 PM, dinner 7:30–8 PM, sleep by 12:30 AM.
+
+Her plan for tomorrow: "${inp.value}"
+
+Give 5–6 practical time-block adjustments based on her plan. Format each bullet as: ⏰ [time] — [activity]. Be specific. If she's going out, suggest moving gym earlier or later. If solo week, remind her about cooking. Keep total under 120 words. Be warm, not robotic.`}]
+      })
+    });
+    const data = await r.json();
+    const text = data.content.map(c=>c.text||'').join('').replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    S.tmrAdj[tmrKey]=text; save();
+    res.innerHTML=text; res.style.display='block';
+  }catch(e){
+    res.innerHTML='⚠️ Could not generate suggestions. Your note is saved — use it as a reminder.';
+    res.style.display='block';
+  }
+  if(btn){btn.disabled=false;btn.innerHTML='Adjust Tomorrow →';}
+}
+
+// ═══════════════════════════════════════════════════
+// FOOD LOG
+// ═══════════════════════════════════════════════════
+function todayCarbs(){
+  const key = dk(new Date());
+  return S.carbs[key]||[];
+}
+function foodUpload(e){
+  const f = e.target.files[0]; if(!f) return;
+  const r = new FileReader();
+  r.onload = ev=>{
+    const img = document.getElementById('prev-img');
+    img.src=ev.target.result; img.style.display='block';
+    document.getElementById('an-btn').style.display='block';
+    document.getElementById('food-ctx-wrap').style.display='block';
+    document.getElementById('food-inp').parentElement.style.display='none';
+  };
+  r.readAsDataURL(f);
+}
+async function analyzeFood(){
+  const btn = document.getElementById('an-btn');
+  const res = document.getElementById('an-result');
+  const img = document.getElementById('prev-img');
+  const ctx = document.getElementById('food-ctx').value;
+  btn.disabled=true; btn.innerHTML='<span class="loading-spinner"></span>Analysing...';
+  res.style.display='none';
+
+  const c=document.createElement('canvas');
+  c.width=img.naturalWidth;c.height=img.naturalHeight;
+  c.getContext('2d').drawImage(img,0,0);
+  const b64=c.toDataURL('image/jpeg',0.75).split(',')[1];
+  const total=todayCarbs().reduce((a,x)=>a+x.carbs,0);
+
+  try{
+    const r=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:700,
+        messages:[{role:'user',content:[
+          {type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},
+          {type:'text',text:`Strict nutritional accountability coach for an 18-year-old Indian girl (65kg) trying to cut sugar to return to previous weight loss progress. She ASKED for strict.
+
+Context: "${ctx||'none given'}"
+Extra carbs today so far: ${total}g (her daily limit: 50g)
+
+Identify the food. Give:
+1. What it is
+2. Carbs ~Xg | Sugar ~Xg | Calories ~X
+3. Running total: ${total}g + Xg = Yg / 50g limit
+
+If it's high-sugar (chocolate, soda, cold coffee, biscuits, mithai, chips): be honest and direct. Tough love. She asked for this. If it's healthy: brief positive note.
+
+End with one punchy line she'll remember all day.
+
+Format:
+🍫 **Item:** [name]
+🔢 **Carbs:** ~Xg | Sugar: ~Xg | Cal: ~X
+📊 **Running total:** ${total}g + Xg = Yg / 50g
+💬 **Verdict:** [2 sentences max]
+💡 **Remember:** [one punchy line]
+
+Max 90 words.`}
+        ]}]
+      })
+    });
+    const data=await r.json();
+    const text=data.content.map(c=>c.text||'').join('');
+    const m=text.match(/Carbs:\s*~?(\d+)g/i);
+    const carbs=m?parseInt(m[1]):15;
+    const key=dk(new Date());
+    if(!S.carbs[key])S.carbs[key]=[];
+    S.carbs[key].push({name:ctx||'Snack',carbs,time:new Date().toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}),emoji:'🍫'});
+    save(); updateCarbLog(); updateStats();
+    res.innerHTML=text.replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+    res.style.display='block';
+    btn.innerHTML='Analyze Another →'; btn.disabled=false;
+    setTimeout(()=>{
+      document.getElementById('food-inp').parentElement.style.display='block';
+      document.getElementById('prev-img').style.display='none';
+      document.getElementById('food-ctx-wrap').style.display='none';
+      document.getElementById('an-btn').style.display='none';
+      document.getElementById('food-inp').value='';
+      document.getElementById('food-ctx').value='';
+    },600);
+  }catch(err){
+    res.innerHTML='⚠️ Could not analyze. Log it manually in the context box.';
+    res.style.display='block'; btn.innerHTML='Analyze This →'; btn.disabled=false;
+  }
+}
+function updateCarbLog(){
+  const log=document.getElementById('carb-log');
+  const bw=document.getElementById('cbar-wrap');
+  const fill=document.getElementById('cbar-fill');
+  const txt=document.getElementById('cbar-txt');
+  const carbs=todayCarbs();
+  if(!carbs.length){
+    log.innerHTML='<div style="text-align:center;padding:18px;opacity:.4;font-size:.8rem;">Nothing logged yet 🎉</div>';
+    if(bw)bw.style.display='none'; return;
+  }
+  log.innerHTML=carbs.map(c=>`<div class="carb-e"><div class="carb-thumb">${c.emoji}</div><div class="carb-info"><div class="carb-name">${c.name}</div><div class="carb-detail">${c.time}</div></div><div class="carb-amt">~${c.carbs}g</div></div>`).join('');
+  const tot=carbs.reduce((a,c)=>a+c.carbs,0);
+  const pct=Math.min(100,(tot/50)*100);
+  const col=pct<60?'#6d9b72':pct<100?'#c9a84c':'#d64545';
+  if(fill){fill.style.width=pct+'%';fill.style.background=col;}
+  if(txt)txt.textContent=`${tot}g / 50g`;
+  if(bw)bw.style.display='block';
+}
+
+// ═══════════════════════════════════════════════════
+// GYM
+// ═══════════════════════════════════════════════════
+const GYM=[
+  {day:'Monday',focus:'Lower Body',col:'#c96a3a',ex:['Treadmill warm-up 5 min (speed 4–5)','Leg Press — 3×12 (light weight, correct seat height)','Leg Extension — 3×12 (quads, slow movement)','Seated Leg Curl — 3×12 (hamstrings)','Standing Calf Raises — 3×15','Hamstring + quad stretch — 5 min'],tip:'Ask gym staff to adjust the leg press seat for you the first time. Wrong height = knee pain.'},
+  {day:'Wednesday',focus:'Upper Body',col:'#6d9b72',ex:['Treadmill warm-up 5 min','Dumbbell Shoulder Press — 3×12 (start 3–4 kg)','Cable Row — 3×12','Chest Press Machine — 3×12','Bicep Curls — 3×12 (3 kg)','Tricep Pushdown (cable) — 3×12','Shoulder + chest stretch — 5 min'],tip:'Form over weight. Every time. Bad form at light weight beats heavy weight with an injury.'},
+  {day:'Thursday',focus:'Core + Cardio',col:'#d4857a',ex:['Treadmill jog 15 min (speed 5–6)','Plank — 3×20 sec (build to 45 sec by week 3)','Crunches — 3×15','Leg Raises (lying flat) — 3×12','Bicycle Crunches — 3×15 each side','Russian Twists (light weight) — 3×12','Full body stretch 5 min'],tip:'The treadmill portion burns the most calories. Don\'t skip it just because you\'re tired.'},
+  {day:'Saturday',focus:'Full Body Light',col:'#5a9ec9',ex:['Walk warm-up 5 min','Goblet Squat (light dumbbell) — 3×12','Dumbbell Row (each arm) — 3×10','Lateral Raise — 3×12','Seated Chest Fly — 3×12','Plank — 2×30 sec','Treadmill cool-down walk 10 min'],tip:'Optional if going out. If home, do this — full body session sets up Sunday rest perfectly.'},
+];
+const EQUIP=[
+  {n:'Treadmill',u:'Warm-up & cardio. Speed 4–6 to start. Flat, no incline.'},
+  {n:'Leg Press',u:'Quads. Safer than squats for beginners. Adjust seat first.'},
+  {n:'Cable Machine',u:'Rows, tricep pushdowns, lateral raises. Very versatile.'},
+  {n:'Dumbbells 3–5kg',u:'Curls, shoulder press, rows. Your starting weight range.'},
+  {n:'Chest Press Machine',u:'Safer than barbell bench press. Adjust seat height first.'},
+  {n:'Leg Extension',u:'Quads in isolation. Light weight, slow controlled movement.'},
+  {n:'Leg Curl Machine',u:'Hamstrings. Don\'t swing — control the weight.'},
+  {n:'Mat / Floor',u:'Planks, crunches, leg raises. No equipment needed.'},
+];
+function buildGym(){
+  document.getElementById('gym-grid').innerHTML=GYM.map(g=>`
+    <div class="gym-card">
+      <div class="gym-day">${g.day}</div>
+      <div class="gym-focus" style="color:${g.col}">${g.focus}</div>
+      ${g.ex.map(e=>`<div class="gym-ex"><div class="gym-dot"></div><div>${e}</div></div>`).join('')}
+      <div class="gym-tip">💡 ${g.tip}</div>
+    </div>`).join('');
+  document.getElementById('equip-grid').innerHTML=EQUIP.map(e=>`
+    <div style="background:var(--warm);border-radius:9px;padding:10px;">
+      <div style="font-size:.78rem;font-weight:600;margin-bottom:3px;">${e.n}</div>
+      <div style="font-size:.7rem;color:var(--ink-light);line-height:1.4;">${e.u}</div>
+    </div>`).join('');
+}
+
+// ═══════════════════════════════════════════════════
+// CRICKET CONTENT
+// ═══════════════════════════════════════════════════
+function defaultContent(){
+  return [
+    {id:'c1',date:'2026-04-28',type:'passive',topic:'Research: Which IPL player had the most unlikely rise to stardom? (wiki + YouTube)',status:'planned',notes:''},
+    {id:'c2',date:'2026-04-29',type:'passive',topic:'Script: "Rookie Fan Explains — What is a Super Over and why does everyone lose their mind?"',status:'planned',notes:''},
+    {id:'c3',date:'2026-04-30',type:'passive',topic:'Script: "Why I love a team that breaks my heart every year" — RCB Fan Diary',status:'planned',notes:''},
+    {id:'c4',date:'2026-05-01',type:'passive',topic:'Film Video 1 (quiet house — mum just left) — Unknown IPL story',status:'planned',notes:'Film in morning, natural light'},
+    {id:'c5',date:'2026-05-02',type:'passive',topic:'Film Video 2 — Rookie Fan Explains: Super Over',status:'planned',notes:''},
+    {id:'c6',date:'2026-05-03',type:'passive',topic:'Film Video 3 — RCB Fan Diary confessional',status:'planned',notes:''},
+    {id:'c7',date:'2026-05-05',type:'active',topic:'🚀 POST VIDEO 1 — Upload + write caption + hashtags',status:'planned',notes:'First post! Just do it.'},
+    {id:'c8',date:'2026-05-07',type:'passive',topic:'POST Video 2 — Rookie Fan Explains: Super Over',status:'planned',notes:''},
+    {id:'c9',date:'2026-05-09',type:'reaction',topic:'POST-MATCH reaction reel — film same night after IPL',status:'planned',notes:''},
+    {id:'c10',date:'2026-05-12',type:'active',topic:'Mid-season check-in: who has surprised me most in IPL 2026?',status:'planned',notes:''},
+    {id:'c11',date:'2026-05-14',type:'passive',topic:'"SRH vs RCB — If I had to pick one. (It\'s impossible. Here\'s why.)"',status:'planned',notes:''},
+    {id:'c12',date:'2026-05-18',type:'educational',topic:'"Why does everyone argue about DLS?" — Rookie Fan Explains series ep 2',status:'planned',notes:''},
+    {id:'c13',date:'2026-05-21',type:'active',topic:'Playoffs build-up: my predictions and why I\'m probably wrong',status:'planned',notes:''},
+    {id:'c14',date:'2026-05-25',type:'reaction',topic:'Playoffs reaction series — post after every match',status:'planned',notes:''},
+    {id:'c15',date:'2026-06-02',type:'active',topic:'IPL Final Day: full reaction + what this season meant to me as a new fan',status:'planned',notes:''},
+  ];
+}
+function buildCC(){
+  const typeLabels={passive:'📖 Passive',active:'🎙️ Active',reaction:'⚡ Reaction',educational:'🎓 Educational'};
+  const typeCols={passive:'#856404',active:var_rust,'#3a7a4a':'',educational:'#1a4a8a'};
+  document.getElementById('cc-grid').innerHTML=S.content.map(c=>{
+    const d=new Date(c.date);
+    const tcol=c.type==='passive'?'#856404':c.type==='active'?'#a84f28':c.type==='reaction'?'#3a7a4a':'#1a4a8a';
+    return `<div class="cc-card ${c.type} ${c.status==='posted'?'posted':''}">
+      <div class="cc-type" style="color:${tcol}">${typeLabels[c.type]||c.type}</div>
+      <div class="cc-date">${fmt(d)}</div>
+      <div class="cc-topic">${c.topic}</div>
+      <div class="cc-btns">
+        <button class="cc-btn ${c.status==='filmed'?'filmed':''}" onclick="setCC('${c.id}','filmed')">Filmed</button>
+        <button class="cc-btn ${c.status==='posted'?'posted':''}" onclick="setCC('${c.id}','posted')">Posted ✓</button>
+      </div>
+      <input class="cc-note" placeholder="Notes..." value="${c.notes}" oninput="ccNote('${c.id}',this.value)">
+    </div>`;}).join('');
+}
+const var_rust='#a84f28';
+function setCC(id,status){
+  const item=S.content.find(c=>c.id===id);
+  if(item){item.status=status;save();buildCC();}
+  if(status==='posted'&&!S.ach['reel1']){S.ach['reel1']=true;S.pts+=50;save();toast('🏏 First Reel posted! +50 pts');}
+}
+function ccNote(id,val){const item=S.content.find(c=>c.id===id);if(item){item.notes=val;save();}}
+function addCC(){
+  const date=document.getElementById('cc-date').value;
+  const type=document.getElementById('cc-type').value;
+  const topic=document.getElementById('cc-topic').value.trim();
+  if(!date||!topic){toast('Fill in date and topic'); return;}
+  S.content.push({id:'c'+Date.now(),date,type,topic,status:'planned',notes:''});
+  S.content.sort((a,b)=>a.date.localeCompare(b.date));
+  save();buildCC();
+  document.getElementById('cc-topic').value='';
+  toast('Added to content calendar ✓');
+}
+
+// ═══════════════════════════════════════════════════
+// ACHIEVEMENTS
+// ═══════════════════════════════════════════════════
+const ACHS=[
+  {icon:'🌅',name:'Early Riser',desc:'Up by 9 AM × 3 days',id:'early'},
+  {icon:'🛁',name:'Clean Streak',desc:'Bath × 5 days in a row',id:'clean'},
+  {icon:'📝',name:'Journalist',desc:'Match report × 5 days',id:'report5'},
+  {icon:'📊',name:'Marketer',desc:'DM module × 7 days',id:'dm7'},
+  {icon:'💪',name:'First Gym',desc:'First gym session done',id:'gym1'},
+  {icon:'🏋️',name:'Gym Week',desc:'Gym × 4 in one week',id:'gymweek'},
+  {icon:'🎨',name:'Artist',desc:'Artwork × 3 sessions',id:'art3'},
+  {icon:'🏏',name:'Content Creator',desc:'First reel posted',id:'reel1'},
+  {icon:'🎬',name:'Batch Builder',desc:'5 videos filmed before posting',id:'batch5'},
+  {icon:'📚',name:'Reader',desc:'Reading × 3 days',id:'read3'},
+  {icon:'🍫',name:'Sugar Free',desc:'No extras × 3 days',id:'sugar3'},
+  {icon:'🔥',name:'Week Warrior',desc:'5+ tasks × 7 days',id:'week7'},
+  {icon:'🛵',name:'On Two Wheels',desc:'Two-wheeler practice × 5',id:'bike5'},
+  {icon:'🏠',name:'Solo Survivor',desc:'All solo week tasks done',id:'solo'},
+];
+function buildAch(){
+  document.getElementById('ach-grid').innerHTML=ACHS.map(a=>`
+    <div class="ach ${S.ach[a.id]?'':'locked'}">
+      <div class="ach-icon">${a.icon}</div>
+      <div class="ach-name">${a.name}</div>
+      <div class="ach-desc">${a.desc}</div>
+    </div>`).join('');
+
+  const row=document.getElementById('streak-row');
+  const days=[];
+  for(let i=0;i<40;i++){
+    const d=new Date(START);d.setDate(d.getDate()+i);
+    if(d>END)break;
+    const dkey=dk(d);const isToday=dkey===dk(new Date());
+    const done=S.streakDays[dkey];
+    days.push(`<div class="sd ${done?'done':''} ${isToday?'today':''}" onclick="toggleStreak('${dkey}')" title="${fmt(d)}">${DOW[d.getDay()][0]}</div>`);
+  }
+  row.innerHTML=days.join('');
+}
+function toggleStreak(dkey){S.streakDays[dkey]=!S.streakDays[dkey];S.streak=Object.values(S.streakDays).filter(Boolean).length;save();updateStats();buildAch();}
+function checkAch(){
+  const allTasks=Object.values(S.tasks).flatMap(d=>Object.entries(d).filter(([,v])=>v).map(([k])=>k));
+  if(allTasks.filter(k=>k==='gym').length>=1&&!S.ach['gym1']){S.ach['gym1']=true;toast('💪 First Gym session!');}
+  if(allTasks.filter(k=>k==='gym').length>=4&&!S.ach['gymweek']){S.ach['gymweek']=true;S.pts+=80;toast('🏋️ Gym Week! +80 pts');}
+  if(allTasks.filter(k=>k==='match-report').length>=5&&!S.ach['report5']){S.ach['report5']=true;S.pts+=60;toast('📝 Journalist badge! +60 pts');}
+  if(allTasks.filter(k=>k==='dm-course').length>=7&&!S.ach['dm7']){S.ach['dm7']=true;S.pts+=70;toast('📊 Marketer badge! +70 pts');}
+  if(allTasks.filter(k=>k==='art').length>=3&&!S.ach['art3']){S.ach['art3']=true;S.pts+=45;toast('🎨 Artist badge! +45 pts');}
+  save();buildAch();
+}
+
+// ═══════════════════════════════════════════════════
+// STATS + QUOTES
+// ═══════════════════════════════════════════════════
+const QUOTES=[
+  '"Every match report you write is journalism practice. Every reel you post is media production. This is your degree happening."',
+  '"Digital marketing + cricket content + match reporting = your resume before final year."',
+  '"The girl who found cricket in 2023 is now writing about it, creating content about it, and studying it. That\'s the story."',
+  '"Solo week: you\'re cooking, you\'re creating, you\'re studying. That\'s not a gap year. That\'s growing up."',
+  '"Your mum thinks drawing is time-pass. That\'s because she hasn\'t seen your portfolio yet."',
+  '"6 AM journalists. 6 PM athletes. 11 PM content creators. You can be all three — just not all at 2 AM."',
+  '"One module. One report. One script. Every morning. That\'s a career being built."',
+];
+function updateStats(){
+  const todayKey=dk(new Date());
+  const todayDone=Object.values(S.tasks[todayKey]||{}).filter(Boolean).length;
+  document.getElementById('s-pts').textContent=S.pts;
+  document.getElementById('s-streak').textContent=S.streak;
+  document.getElementById('s-done').textContent=todayDone;
+  document.getElementById('s-today').textContent=fmt(new Date());
+  const cTotal=todayCarbs().reduce((a,c)=>a+c.carbs,0);
+  document.getElementById('s-carbs').textContent=cTotal+'g';
+  document.getElementById('qstrip').textContent=QUOTES[Math.floor(S.pts/20)%QUOTES.length];
+}
+
+// ═══════════════════════════════════════════════════
+// TABS
+// ═══════════════════════════════════════════════════
+function tab(name,btn){
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('on'));
+  document.getElementById('panel-'+name).classList.add('on');
+  btn.classList.add('on');
+  if(name==='schedule') renderSchedule();
+}
+
+// ═══════════════════════════════════════════════════
+// TOAST
+// ═══════════════════════════════════════════════════
+function toast(msg){
+  const el=document.createElement('div');
+  el.className='toast';el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3000);
+}
+
+// ═══════════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════════
+renderWeek();
+buildGym();
+buildCC();
+buildAch();
+updateCarbLog();
+updateStats();
 </script>
 </body>
 </html>
